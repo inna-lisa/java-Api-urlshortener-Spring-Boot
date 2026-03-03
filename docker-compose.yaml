@@ -1,0 +1,31 @@
+services:
+  db:
+    image: postgres:15
+    container_name: url_shortener_db
+    environment:
+      POSTGRES_DB: url_shortener
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      TZ: UTC
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: url_shortener_app
+    environment:
+        - JWT_SECRET=${JWT_SECRET}
+        - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/url_shortener
+        - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+        - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+    ports:
+        - "8080:8080"
+    depends_on:
+        - db
+
+
+volumes:
+  postgres_data:
