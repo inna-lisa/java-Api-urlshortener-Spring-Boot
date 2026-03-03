@@ -27,3 +27,6 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t url-shortener .
+
+      - name: Generate coverage report
+        run: ./gradlew jacocoTestReport

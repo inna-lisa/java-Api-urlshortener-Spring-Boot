@@ -1,4 +1,5 @@
 [![CI](https://github.com/inna-lisa/java-Api-urlshortener-Spring-Boot/actions/workflows/ci.yml/badge.svg)](https://github.com/inna-lisa/java-Api-urlshortener-Spring-Boot/actions)
+![Coverage](https://img.shields.io/badge/coverage-95%-brightgreen)
 # URL Shortener API
 
 Simple URL shortening service with user authentication and link management.
