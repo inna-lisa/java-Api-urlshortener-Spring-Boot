@@ -1,5 +1,5 @@
 # Stage 1 - build
-FROM gradle:8.5-jdk21 AS build
+FROM gradle:8.14.0-jdk21 AS build
 WORKDIR /app
 COPY . .
 RUN gradle clean bootJar
