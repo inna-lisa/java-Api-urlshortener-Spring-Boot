@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -118,5 +119,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(LinkExpiredException.class)
     public ResponseEntity<String> handleNotFound(LinkExpiredException ex) {
         return ResponseEntity.status(HttpStatus.GONE).body(ex.getMessage());
+    }
+
+    /**
+     * Handles invalid body exception.
+     *
+     * @param ex thrown exception
+     * @return BAD_REQUEST response with error message
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<String> handleEmptyBody(HttpMessageNotReadableException ex) {
+        return ResponseEntity.badRequest().body("Request body is missing or invalid JSON");
     }
 }

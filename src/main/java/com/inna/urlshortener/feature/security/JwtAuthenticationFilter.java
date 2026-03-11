@@ -69,9 +69,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.clearContext();
                 request.setAttribute("jwt-exception", ex.getMessage());
             }
-        } else {
-            SecurityContextHolder.clearContext();
-            request.setAttribute("jwt-exception", "Token is missing");
         }
         filterChain.doFilter(request, response);
     }

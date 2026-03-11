@@ -52,7 +52,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void registration_shouldCreateUser_WhenUserIsNew() {
+    void registrationShouldCreateUserWhenUserIsNew() {
         when(userRepository.findByUsername(userRequestDto.getUsername())).thenReturn(Optional.empty());
         when(passwordEncoder.encode(userRequestDto.getPassword())).thenReturn(user.getPassword());
         when(userRepository.save(any(User.class))).thenReturn(user);
@@ -67,7 +67,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void registration_shouldThrowException_whenUserIsExist() {
+    void registrationShouldThrowExceptionWhenUserIsExist() {
         when(userRepository.findByUsername(userRequestDto.getUsername())).thenReturn(Optional.of(user));
 
         assertThrows(UserAlreadyExistsException.class, () -> userService.registration(userRequestDto));
@@ -77,7 +77,7 @@ class UserServiceImplTest {
 
     @ParameterizedTest
     @MethodSource("invalidPasswords")
-    void registration_shouldThrowException_whenPasswordInvalid(String password) {
+    void registrationShouldThrowExceptionWhenPasswordInvalid(String password) {
         UserRequestDto userRequest = new UserRequestDto("testUser", password);
 
         when(userRepository.findByUsername(userRequest.getUsername())).thenReturn(Optional.empty());
@@ -88,7 +88,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void authorization_shouldAuthorize_whenUserIsValid() {
+    void authorizationShouldAuthorizeWhenUserIsValid() {
         when(userRepository.findByUsername(userRequestDto.getUsername())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(userRequestDto.getPassword(), user.getPassword())).thenReturn(true);
         when(jwtProvider.generateToken(user.getId(), user.getUsername())).thenReturn("mocked-token");
@@ -103,7 +103,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void authorization_shouldThrowException_whenUserNotFound() {
+    void authorizationShouldThrowExceptionWhenUserNotFound() {
         when(userRepository.findByUsername(userRequestDto.getUsername())).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> userService.authorization(userRequestDto));
@@ -112,7 +112,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void authorization_shouldThrowException_whenPasswordInvalid() {
+    void authorizationShouldThrowExceptionWhenPasswordInvalid() {
         UserRequestDto userRequest = new UserRequestDto("testUser", "password1");
 
         when(userRepository.findByUsername(userRequestDto.getUsername())).thenReturn(Optional.of(user));

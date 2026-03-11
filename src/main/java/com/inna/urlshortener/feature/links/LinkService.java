@@ -27,6 +27,16 @@ public interface LinkService {
     String getLink(String shortLink);
 
     /**
+     * Update new short link.
+     *
+     * @param shortLink short URL.
+     * @param requestDto original link.
+     * @param username authorized user.
+     * @return response DTO.
+     */
+    LinkResponseDto update(String shortLink, LinkUpdateRequestDto requestDto, String username);
+
+    /**
      * Delete link.
      *
      * @param shortLink short URL.

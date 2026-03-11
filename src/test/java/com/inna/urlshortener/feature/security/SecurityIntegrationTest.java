@@ -67,7 +67,7 @@ class SecurityIntegrationTest {
     }
 
     @Test
-    void accessProtectedResource_withToken_shouldReturn200() throws Exception {
+    void accessProtectedResourceWithTokenShouldReturn200() throws Exception {
 
         createUser("userTest", "Password1");
         String token = getToken("userTest", "Password1");
@@ -78,14 +78,14 @@ class SecurityIntegrationTest {
     }
 
     @Test
-    void accessProtectedResource_withoutToken_shouldReturn401() throws Exception {
+    void accessProtectedResourceWithoutTokenShouldReturn401() throws Exception {
 
         mockMvc.perform(get("/api/v1/links"))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void accessProtectedResource_withoutInvalidToken_shouldReturn401() throws Exception {
+    void accessProtectedResourceWithoutInvalidTokenShouldReturn401() throws Exception {
 
         mockMvc.perform(get("/api/v1/links")
                 .header("Authorization", "Bearer token"))

@@ -26,7 +26,7 @@ class JwtProviderTest {
     }
 
     @Test
-    void generateToken_shouldReturnValidToken() {
+    void generateTokenShouldReturnValidToken() {
         String token = jwtProvider.generateToken(user.getId(), user.getUsername());
 
         assertNotNull(token);
@@ -34,14 +34,14 @@ class JwtProviderTest {
     }
 
     @Test
-    void validateToken_shouldPass_whenTokenValid() {
+    void validateTokenShouldPassWhenTokenValid() {
         String token = jwtProvider.generateToken(user.getId(), user.getUsername());
 
         assertDoesNotThrow(() -> jwtProvider.validateToken(token));
     }
 
     @Test
-    void validateToken_shouldThrow_whenTokenExpired() throws InterruptedException {
+    void validateTokenShouldThrowWhenTokenExpired() throws InterruptedException {
 
         JwtProvider shortLiveProvider = new JwtProvider(secret, 1);
 
@@ -53,19 +53,19 @@ class JwtProviderTest {
     }
 
     @Test
-    void validateToken_shouldThrow_whenTokenMalformed() {
+    void validateTokenShouldThrowWhenTokenMalformed() {
 
         assertThrows(JwtAuthenticationException.class, () -> jwtProvider.validateToken("token"));
     }
 
     @Test
-    void validateToken_shouldThrow_whenTokenIsEmpty() {
+    void validateTokenShouldThrowWhenTokenIsEmpty() {
 
         assertThrows(JwtAuthenticationException.class, () -> jwtProvider.validateToken(""));
     }
 
     @Test
-    void getUsername_shouldReturnUserFromToken() {
+    void getUsernameShouldReturnUserFromToken() {
         String token = jwtProvider.generateToken(user.getId(), user.getUsername());
 
         assertEquals(user.getUsername(), jwtProvider.getUsername(token));

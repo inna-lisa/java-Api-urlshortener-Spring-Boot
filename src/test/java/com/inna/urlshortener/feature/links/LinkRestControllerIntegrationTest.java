@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -51,30 +52,30 @@ class LinkRestControllerIntegrationTest {
      */
     private void register(String username, String password) throws Exception {
         mockMvc.perform(post("/api/v1/users/registration")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                        {
-                        "username": "%s",
-                        "password": "%s"
-                        }
-                        """
-                        .formatted(username, password)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                "username": "%s",
+                                "password": "%s"
+                                }
+                                """
+                                .formatted(username, password)))
                 .andExpect(status().isCreated());
     }
 
     /**
      * Helper: login and return JWT token.
      */
-    private String authorizer_getToken(String username, String password) throws Exception {
+    private String authorizerGetToken(String username, String password) throws Exception {
         MvcResult result = mockMvc.perform(post("/api/v1/users/authorization")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                        {
-                        "username": "%s",
-                        "password": "%s"
-                        }
-                        """
-                        .formatted(username, password)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                "username": "%s",
+                                "password": "%s"
+                                }
+                                """
+                                .formatted(username, password)))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -85,22 +86,22 @@ class LinkRestControllerIntegrationTest {
     }
 
     @Test
-    void createLink_shouldCreateLink_whenAuthorized() throws Exception {
+    void createLinkShouldCreateLinkWhenAuthorized() throws Exception {
         String username = "user1";
         String password = "Password1";
 
         register(username, password);
 
-        String token = authorizer_getToken(username, password);
+        String token = authorizerGetToken(username, password);
 
         mockMvc.perform(post("/api/v1/links")
                         .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                        {
-                        "url":"https://google.com"
-                        }
-                        """))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                "url":"https://google.com"
+                                }
+                                """))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.shortUrl").exists());
 
@@ -108,41 +109,41 @@ class LinkRestControllerIntegrationTest {
     }
 
     @Test
-    void createLink_shouldReturn401_whenNoToken() throws Exception {
+    void createLinkShouldReturn401WhenNoToken() throws Exception {
 
         mockMvc.perform(post("/api/v1/links")
                         //.header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                        {
-                        "url":"https://google.com"
-                        }
-                        """))
+                                {
+                                "url":"https://google.com"
+                                }
+                                """))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void createLink_shouldReturn400_whenUrlInvalid() throws Exception {
+    void createLinkShouldReturn400WhenUrlInvalid() throws Exception {
         String username = "user1";
         String password = "Password1";
 
         register(username, password);
 
-        String token = authorizer_getToken("user1", "Password1");
+        String token = authorizerGetToken("user1", "Password1");
 
         mockMvc.perform(post("/api/v1/links")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                        {
-                        "url":"invalidUrl"
-                        }
-                        """))
+                                {
+                                "url":"invalidUrl"
+                                }
+                                """))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    void getLinks_shouldReturnUserLinks() throws Exception {
+    void getLinksShouldReturnUserLinks() throws Exception {
         String username = "user3";
         String password = "Password1";
 
@@ -154,7 +155,7 @@ class LinkRestControllerIntegrationTest {
         link.setUser(userRepository.findByUsername(username).get());
         linkRepository.save(link);
 
-        String token = authorizer_getToken(username, password);
+        String token = authorizerGetToken(username, password);
 
         mockMvc.perform(get("/api/v1/links")
                         .header("Authorization", "Bearer " + token))
@@ -163,7 +164,7 @@ class LinkRestControllerIntegrationTest {
     }
 
     @Test
-    void redirect_shouldReturn302_whenLinkExists() throws Exception {
+    void redirectShouldReturn302WhenLinkExists() throws Exception {
 
         String username = "user4";
         String password = "Password1";
@@ -182,14 +183,14 @@ class LinkRestControllerIntegrationTest {
     }
 
     @Test
-    void redirect_shouldReturn404_whenLinkNotExists() throws Exception {
+    void redirectShouldReturn404WhenLinkNotExists() throws Exception {
 
         mockMvc.perform(get("/api/v1/links/unknown"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void redirect_shouldReturn404_whenLinkExpired() throws Exception {
+    void redirectShouldReturn404WhenLinkExpired() throws Exception {
         String username = "user4";
         String password = "Password1";
 
@@ -208,7 +209,7 @@ class LinkRestControllerIntegrationTest {
     }
 
     @Test
-    void redirect_shouldIncreaseOpenCount() throws Exception {
+    void redirectShouldIncreaseOpenCount() throws Exception {
         String username = "user4";
         String password = "Password1";
 
@@ -230,7 +231,7 @@ class LinkRestControllerIntegrationTest {
     }
 
     @Test
-    void deleteLink_shouldDelete_whenOwner() throws Exception {
+    void deleteLinkShouldDeleteWhenOwner() throws Exception {
         String username = "user4";
         String password = "Password1";
 
@@ -242,7 +243,7 @@ class LinkRestControllerIntegrationTest {
         link.setUser(userRepository.findByUsername(username).get());
         linkRepository.save(link);
 
-        String token = authorizer_getToken(username, password);
+        String token = authorizerGetToken(username, password);
 
         mockMvc.perform(delete("/api/v1/links/shortUrl")
                         .header("Authorization", "Bearer " + token))
@@ -252,7 +253,7 @@ class LinkRestControllerIntegrationTest {
     }
 
     @Test
-    void deleteLink_shouldReturn403_whenNotOwner() throws Exception {
+    void deleteLinkShouldReturn403WhenNotOwner() throws Exception {
         String usernameOwner = "owner";
         String usernameNotOwner = "notOwner";
         String password = "Password1";
@@ -266,12 +267,75 @@ class LinkRestControllerIntegrationTest {
         link.setUser(userRepository.findByUsername(usernameOwner).get());
         linkRepository.save(link);
 
-        String token = authorizer_getToken(usernameNotOwner, password);
+        String token = authorizerGetToken(usernameNotOwner, password);
 
         mockMvc.perform(delete("/api/v1/links/shortUrl")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isForbidden());
 
         assertEquals(1, linkRepository.count());
+    }
+
+    @Test
+    void updateLinkShouldUpdateUrlWhenOwner() throws Exception {
+
+        String username = "user5";
+        String password = "Password1";
+
+        register(username, password);
+
+        Link link = new Link();
+        link.setUrl("https://old.com");
+        link.setShortLink("abc123");
+        link.setUser(userRepository.findByUsername(username).get());
+
+        linkRepository.save(link);
+
+        String token = authorizerGetToken(username, password);
+
+        mockMvc.perform(patch("/api/v1/links/abc123")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "url":"https://new.com"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.url").value("https://new.com"));
+
+        Link updated = linkRepository.findByShortLink("abc123").get();
+
+        assertEquals("https://new.com", updated.getUrl());
+    }
+
+    @Test
+    void updateLinkShouldReturn403WhenNotOwner() throws Exception {
+
+        String usernameOwner = "owner";
+        String usernameNotOwner = "notOwner";
+        String password = "Password1";
+
+        register(usernameOwner, password);
+        register(usernameNotOwner, password);
+
+        Link link = new Link();
+        link.setUrl("https://old.com");
+        link.setShortLink("abc123");
+        link.setUser(userRepository.findByUsername(usernameOwner).get());
+
+        linkRepository.save(link);
+
+        String token = authorizerGetToken(usernameNotOwner, password);
+
+        mockMvc.perform(patch("/api/v1/links/abc123")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "url":"https://new.com"
+                                }
+                                """))
+                .andExpect(status().isForbidden());
     }
 }

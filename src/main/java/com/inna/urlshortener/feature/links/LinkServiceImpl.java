@@ -77,6 +77,38 @@ public class LinkServiceImpl implements LinkService {
     }
 
     /**
+     * Updates an existing short link.
+     *
+     * @param shortLink short URL (not null validation on {@link LinkRestController})
+     * @param requestDto request can contain new original URL
+     * @param username owner username (not null validation on {@link LinkRestController})
+     * @return update link DTO
+     * @throws LinkNotFoundException if link not found
+     */
+    @Override
+    @Transactional
+    public LinkResponseDto update(String shortLink, LinkUpdateRequestDto requestDto, String username) {
+
+        Link link = linkRepository.findByShortLink(shortLink)
+                .orElseThrow(() -> new LinkNotFoundException("Short URL doesn't exist"));
+
+        if (!link.getUser().getUsername().equals(username)) {
+            throw new SecurityException("You are not the owner of this link");
+        }
+
+        if (requestDto.getUrl() != null) {
+            link.setUrl(requestDto.getUrl());
+        }
+
+        if (requestDto.getExpiresAt() != null) {
+            link.setExpiresAt(requestDto.getExpiresAt());
+        }
+
+        return toDto(link);
+    }
+
+
+    /**
      * Deletes link if user is owner.
      *
      * @param shortLink short URL (not null validation on {@link LinkRestController})

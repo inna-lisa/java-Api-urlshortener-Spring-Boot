@@ -29,7 +29,7 @@ class UserRestControllerTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    void validRegistration_shouldReturnResponseDto() throws Exception {
+    void validRegistrationShouldReturnResponseDto() throws Exception {
         UserRequestDto userRequestDto = new UserRequestDto("testUser", "Password12");
         UserResponseDto userResponseDto = new UserResponseDto(1L, "testUser", null);
 
@@ -46,7 +46,7 @@ class UserRestControllerTest {
     }
 
     @Test
-    void validRegistration_shouldReturnBadRequest_whenUsernameBlank() throws Exception {
+    void validRegistrationShouldReturnBadRequestWhenUsernameBlank() throws Exception {
         UserRequestDto userRequestDto = new UserRequestDto("", "Password12");
 
         mockMvc.perform(post("/api/v1/users/registration")
@@ -57,7 +57,7 @@ class UserRestControllerTest {
     }
 
     @Test
-    void validAuthorization_shouldReturnResponseDto() throws Exception {
+    void validAuthorizationShouldReturnResponseDto() throws Exception {
         UserRequestDto userRequestDto = new UserRequestDto("testUser", "Password12");
         UserResponseDto userResponseDto = new UserResponseDto(1L, "testUser", "mock-token");
 
@@ -73,7 +73,7 @@ class UserRestControllerTest {
     }
 
     @Test
-    void validAuthorization_shouldReturnBadRequest_whenPasswordBlank() throws Exception {
+    void validAuthorizationShouldReturnBadRequestWhenPasswordBlank() throws Exception {
         UserRequestDto userRequestDto = new UserRequestDto("testUser", "");
 
         mockMvc.perform(post("/api/v1/users/authorization")

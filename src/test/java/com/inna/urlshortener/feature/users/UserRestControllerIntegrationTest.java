@@ -50,7 +50,7 @@ class UserRestControllerIntegrationTest {
     }
 
     @Test
-    void registration_shouldCreateUser_inDataBase() throws Exception {
+    void registrationShouldCreateUserInDataBase() throws Exception {
 
         String request = """
                 {
@@ -72,7 +72,7 @@ class UserRestControllerIntegrationTest {
     }
 
     @Test
-    void registration_shouldReturnConflict_whenUserExists() throws Exception {
+    void registrationShouldReturnConflictWhenUserExists() throws Exception {
 
         User user = new User();
         user.setUsername("exists");
@@ -93,7 +93,7 @@ class UserRestControllerIntegrationTest {
     }
 
     @Test
-    void registration_shouldReturnBadRequest_whenPasswordInvalid() throws Exception {
+    void registrationShouldReturnBadRequestWhenPasswordInvalid() throws Exception {
 
         String request = """
                 {
@@ -111,7 +111,7 @@ class UserRestControllerIntegrationTest {
     }
 
     @Test
-    void authorization_shouldReturnToken_whenCredentialsValid() throws Exception {
+    void authorizationShouldReturnTokenWhenCredentialsValid() throws Exception {
 
         User user = new User();
         user.setUsername("authUser");
@@ -133,7 +133,7 @@ class UserRestControllerIntegrationTest {
     }
 
     @Test
-    void authorization_shouldReturnNotFound_whenUserNotExists() throws Exception {
+    void authorizationShouldReturnNotFoundWhenUserNotExists() throws Exception {
 
         String request = """
                 {
@@ -149,7 +149,7 @@ class UserRestControllerIntegrationTest {
     }
 
     @Test
-    void authorization_shouldReturnBadRequest_whenPasswordWrong() throws Exception {
+    void authorizationShouldReturnBadRequestWhenPasswordWrong() throws Exception {
 
         User user = new User();
         user.setUsername("authUser");

@@ -40,7 +40,7 @@ class JwtAuthenticationFilterTest {
     }
 
     @Test
-    void doFilterInternal_shouldSetAuthentication_whenTokenValid() throws Exception {
+    void doFilterInternalShouldSetAuthenticationWhenTokenValid() throws Exception {
 
         when(request.getHeader("Authorization"))
                 .thenReturn("Bearer validToken");
@@ -59,7 +59,7 @@ class JwtAuthenticationFilterTest {
     }
 
     @Test
-    void doFilterInternal_shouldNotSetAuthentication_whenTokenInvalid() throws Exception {
+    void doFilterInternalShouldNotSetAuthenticationWhenTokenInvalid() throws Exception {
 
         when(request.getHeader("Authorization"))
                 .thenReturn("Bearer badToken");
@@ -75,7 +75,7 @@ class JwtAuthenticationFilterTest {
     }
 
     @Test
-    void doFilterInternal_shouldNotSetAuthentication_whenNoHeader() throws Exception {
+    void doFilterInternalShouldNotSetAuthenticationWhenNoHeader() throws Exception {
 
         when(request.getHeader("Authorization"))
                 .thenReturn(null);

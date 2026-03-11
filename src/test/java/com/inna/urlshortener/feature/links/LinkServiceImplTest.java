@@ -55,7 +55,7 @@ class LinkServiceImplTest {
     }
 
     @Test
-    void create_shouldCreateShortLink() {
+    void createShouldCreateShortLink() {
 
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
         when(linkRepository.save(any(Link.class))).thenReturn(link);
@@ -70,7 +70,7 @@ class LinkServiceImplTest {
     }
 
     @Test
-    void create_shouldTrowUserNotFound() {
+    void createShouldTrowUserNotFound() {
 
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
@@ -80,7 +80,7 @@ class LinkServiceImplTest {
     }
 
     @Test
-    void getLink_shouldReturnOriginalUrlAndIncreaseOpenCount() {
+    void getLinkShouldReturnOriginalUrlAndIncreaseOpenCount() {
         when(linkRepository.findByShortLink(link.getShortLink())).thenReturn(Optional.of(link));
 
         String originalLink = linkService.getLink(link.getShortLink());
@@ -90,7 +90,7 @@ class LinkServiceImplTest {
     }
 
     @Test
-    void getLink_shouldThrowIfNotFound() {
+    void getLinkShouldThrowIfNotFound() {
         when(linkRepository.findByShortLink(link.getShortLink())).thenReturn(Optional.empty());
 
         String shortLink = link.getShortLink();
@@ -98,7 +98,7 @@ class LinkServiceImplTest {
     }
 
     @Test
-    void getLink_shouldThrowIfExpired() {
+    void getLinkShouldThrowIfExpired() {
         link.setExpiresAt(LocalDateTime.now().minusDays(1));
         when(linkRepository.findByShortLink(link.getShortLink())).thenReturn(Optional.of(link));
 
@@ -107,7 +107,7 @@ class LinkServiceImplTest {
     }
 
     @Test
-    void delete_shouldRemoveLinkIfOwner() {
+    void deleteShouldRemoveLinkIfOwner() {
         when(linkRepository.findByShortLink(link.getShortLink())).thenReturn(Optional.of(link));
 
         linkService.delete(link.getShortLink(), user.getUsername());
@@ -116,7 +116,7 @@ class LinkServiceImplTest {
     }
 
     @Test
-    void delete_ThrowExceptionIfNotOwner() {
+    void deleteThrowExceptionIfNotOwner() {
         when(linkRepository.findByShortLink(link.getShortLink())).thenReturn(Optional.of(link));
 
         String shortLink = link.getShortLink();
@@ -124,7 +124,7 @@ class LinkServiceImplTest {
     }
 
     @Test
-    void delete_ThrowExceptionIfLinkNotFound() {
+    void deleteThrowExceptionIfLinkNotFound() {
         when(linkRepository.findByShortLink(link.getShortLink())).thenReturn(Optional.empty());
 
         String shortLink = link.getShortLink();
@@ -133,7 +133,7 @@ class LinkServiceImplTest {
     }
 
     @Test
-    void getUserLinks_shouldReturnLinksByUser() {
+    void getUserLinksShouldReturnLinksByUser() {
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
         when(linkRepository.findByUser(user)).thenReturn(List.of(link));
 
@@ -144,7 +144,7 @@ class LinkServiceImplTest {
     }
 
     @Test
-    void getUserLinks_shouldTrowExceptionIfUserNotFound() {
+    void getUserLinksShouldTrowExceptionIfUserNotFound() {
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.empty());
 
         String username = user.getUsername();
@@ -152,7 +152,7 @@ class LinkServiceImplTest {
     }
 
     @Test
-    void getActiveUserLinks_shouldReturnActiveLinksByUser() {
+    void getActiveUserLinksShouldReturnActiveLinksByUser() {
 
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
         when(linkRepository.findByUserAndExpiresAtAfter(eq(user), any(LocalDateTime.class))).thenReturn(List.of(link));
@@ -164,10 +164,48 @@ class LinkServiceImplTest {
     }
 
     @Test
-    void getActiveUserLinks_shouldTrowExceptionIfUserNotFound() {
+    void getActiveUserLinksShouldTrowExceptionIfUserNotFound() {
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.empty());
 
         String username = user.getUsername();
         assertThrows(UserNotFoundException.class, () -> linkService.getActiveUserLinks(username));
+    }
+
+    @Test
+    void updateShouldUpdateUrlWhenOwner() {
+        LinkUpdateRequestDto linkUpdateRequestDto = new LinkUpdateRequestDto();
+        linkUpdateRequestDto.setUrl("https://new.com");
+        linkUpdateRequestDto.setExpiresAt(LocalDateTime.now().plusDays(60));
+
+        when(linkRepository.findByShortLink(link.getShortLink())).thenReturn(Optional.of(link));
+
+        LinkResponseDto update = linkService.update(link.getShortLink(), linkUpdateRequestDto, link.getUser().getUsername());
+
+        assertEquals(linkUpdateRequestDto.getUrl(), link.getUrl());
+        assertEquals(linkUpdateRequestDto.getExpiresAt(), link.getExpiresAt());
+
+        verify(linkRepository).findByShortLink(link.getShortLink());
+    }
+
+    @Test
+    void updateShouldTrowExceptionWhenNotOwner() {
+        LinkUpdateRequestDto linkUpdateRequestDto = new LinkUpdateRequestDto();
+        linkUpdateRequestDto.setUrl("https://new.com");
+
+        when(linkRepository.findByShortLink(link.getShortLink())).thenReturn(Optional.of(link));
+
+        assertThrows(SecurityException.class,
+               () -> linkService.update(link.getShortLink(), linkUpdateRequestDto, "notOwner"));
+    }
+
+    @Test
+    void updateShouldTrowExceptionWhenLinkNotFound() {
+        LinkUpdateRequestDto linkUpdateRequestDto = new LinkUpdateRequestDto();
+        linkUpdateRequestDto.setUrl("https://new.com");
+
+        when(linkRepository.findByShortLink(link.getShortLink())).thenReturn(Optional.empty());
+
+        assertThrows(LinkNotFoundException.class,
+                () -> linkService.update(link.getShortLink(), linkUpdateRequestDto, link.getUser().getUsername()));
     }
 }

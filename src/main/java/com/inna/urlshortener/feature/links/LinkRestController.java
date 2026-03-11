@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -85,6 +86,34 @@ public class LinkRestController {
 
         String url = linkService.getLink(shortLink);
         return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(url)).build();
+    }
+
+    /**
+     * Update short URL.
+     *
+     * @param shortLink short URL
+     * @param dto link update DTO
+     * @param principal authenticated user principal.
+     * @return updated link
+     */
+    @Operation(summary = "Update short link",
+            description = "Change original URL ang/or expiration date of a short link")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Link updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid request body"),
+            @ApiResponse(responseCode = "403", description = "User not found"),
+            @ApiResponse(responseCode = "404", description = "Link not found"),
+    })
+    @PatchMapping("/{shortLink}")
+    public ResponseEntity<LinkResponseDto> update(@Parameter(description = "Short link identifier", example = "abc123")
+                                           @PathVariable("shortLink")
+                                           @NotBlank(message = "Short link must not be blank")
+                                           String shortLink,
+                                                  @RequestBody @Valid LinkUpdateRequestDto dto, Principal principal) {
+
+        LinkResponseDto linkResponseDto = linkService.update(shortLink, dto, principal.getName());
+
+        return ResponseEntity.ok(linkResponseDto);
     }
 
     /**

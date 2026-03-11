@@ -10,6 +10,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -66,7 +67,7 @@ class LinkRestControllerTest {
     }
 
     @Test
-    void create_shouldReturnCreatedLink() throws Exception {
+    void createShouldReturnCreatedLink() throws Exception {
         when(principal.getName()).thenReturn(linkResponseDto.getUsername());
         when(linkService.create(any(LinkRequestDto.class), anyString())).thenReturn(linkResponseDto);
 
@@ -85,7 +86,7 @@ class LinkRestControllerTest {
     }
 
     @Test
-    void create_shouldReturnBadRequest_whenInvalidBody() throws Exception {
+    void createShouldReturnBadRequestWhenInvalidBody() throws Exception {
 
         mockMvc.perform(post("/api/v1/links")
                         .principal(principal)
@@ -98,7 +99,7 @@ class LinkRestControllerTest {
     }
 
     @Test
-    void redirect_shouldReturnFoundWithLocationHeader() throws Exception {
+    void redirectShouldReturnFoundWithLocationHeader() throws Exception {
         when(linkService.getLink(linkResponseDto.getShortUrl())).thenReturn(linkResponseDto.getUrl());
 
         mockMvc.perform(get("/api/v1/links/shortUrl")
@@ -110,7 +111,7 @@ class LinkRestControllerTest {
     }
 
     @Test
-    void redirect_shouldReturnNotFound_whenLinkNotExists() throws Exception {
+    void redirectShouldReturnNotFoundWhenLinkNotExists() throws Exception {
         when(linkService.getLink("unknown")).thenThrow(new LinkNotFoundException("Not found"));
 
         mockMvc.perform(get("/api/v1/links/unknown")
@@ -119,7 +120,7 @@ class LinkRestControllerTest {
     }
 
     @Test
-    void getUserLinks_shouldReturnLinks() throws Exception {
+    void getUserLinksShouldReturnLinks() throws Exception {
         when(principal.getName()).thenReturn(linkResponseDto.getUsername());
         when(linkService.getUserLinks(username)).thenReturn(List.of(linkResponseDto));
 
@@ -135,7 +136,7 @@ class LinkRestControllerTest {
     }
 
     @Test
-    void getActiveUserLinks_shouldReturnLinksByUser() throws Exception {
+    void getActiveUserLinksShouldReturnLinksByUser() throws Exception {
         when(principal.getName()).thenReturn(linkResponseDto.getUsername());
         when(linkService.getActiveUserLinks(username)).thenReturn(List.of(linkResponseDto));
 
@@ -151,7 +152,7 @@ class LinkRestControllerTest {
     }
 
     @Test
-    void delete_shouldReturnNoContent() throws Exception {
+    void deleteShouldReturnNoContent() throws Exception {
         when(principal.getName()).thenReturn(linkResponseDto.getUsername());
         doNothing().when(linkService).delete(linkResponseDto.getShortUrl(), username);
 
@@ -161,5 +162,51 @@ class LinkRestControllerTest {
                 .andExpect(status().isNoContent());
 
         verify(linkService).delete(linkResponseDto.getShortUrl(), username);
+    }
+    @Test
+    void updateShouldReturnUpdatedLink() throws Exception {
+
+        LinkUpdateRequestDto dto = new LinkUpdateRequestDto();
+        dto.setUrl("https://new.com");
+
+        when(principal.getName()).thenReturn(username);
+        when(linkService.update(anyString(), any(), anyString())).thenReturn(linkResponseDto);
+
+        mockMvc.perform(patch("/api/v1/links/shortUrl")
+                        .principal(principal)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.shortUrl").value(linkResponseDto.getShortUrl()))
+                .andExpect(jsonPath("$.url").value(linkResponseDto.getUrl()));
+
+        verify(linkService).update(anyString(), any(), anyString());
+    }
+
+    @Test
+    void updateShouldReturnBadRequestWhenBodyInvalid() throws Exception {
+
+        mockMvc.perform(patch("/api/v1/links/shortUrl")
+                        .principal(principal)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"url\":\"invalid\"}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateShouldReturnBadRequestWhenDateInvalid() throws Exception {
+
+        mockMvc.perform(patch("/api/v1/links/shortUrl")
+                        .principal(principal)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                          "expiresAt":"invalid-date"
+                        }
+                        """))
+                .andExpect(status().isBadRequest());
     }
 }
