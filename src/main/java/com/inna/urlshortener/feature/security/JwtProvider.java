@@ -28,7 +28,8 @@ public class JwtProvider {
      * @param secret JWT secret key (min 256-bit recommended)
      * @param expiration token lifetime in milliseconds
      */
-    public JwtProvider(@Value("${jwt.secret}") String secret, @Value("${jwt.expiration}") long expiration) {
+    public JwtProvider(@Value("${security.jwt.secret}") String secret,
+                       @Value("${security.jwt.expiration}") long expiration) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
         this.expiration = expiration;
     }

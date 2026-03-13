@@ -45,7 +45,7 @@ public class LinkRestController {
     /**
      * Create new short URL.
      *
-     * @param linkRequestDto link request DTO
+     * @param linkCreateRequestDto link request DTO
      * @param principal authenticated user principal
      * @return response entity with created short URL DTO
      */
@@ -59,9 +59,9 @@ public class LinkRestController {
             @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
     @PostMapping()
-    public ResponseEntity<LinkResponseDto> create(@RequestBody @Valid LinkRequestDto linkRequestDto,
+    public ResponseEntity<LinkResponseDto> create(@RequestBody @Valid LinkCreateRequestDto linkCreateRequestDto,
                                  Principal principal) {
-        LinkResponseDto linkResponseDto = linkService.create(linkRequestDto, principal.getName());
+        LinkResponseDto linkResponseDto = linkService.create(linkCreateRequestDto, principal.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(linkResponseDto);
     }
 

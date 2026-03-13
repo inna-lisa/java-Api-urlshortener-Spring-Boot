@@ -18,14 +18,8 @@ server:
 
 security:
   jwt:
-    secret: ${JWT_SECRET}
-    expiration: ${JWT_EXPIRATION}
-
-springdoc:
-  api-docs:
-    path: /v3/api-docs
-  swagger-ui:
-    path: /swagger-ui.html
+    secret: very-long-and-secure-key-32-plus-chars-and-secure-key-32-plus-chars
+    expiration: 3600000
 
 link:
-  expiration-days: ${LINK_EXPIRATION_DAYS}
+  expiration-days: 30

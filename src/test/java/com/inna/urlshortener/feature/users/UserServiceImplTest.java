@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,6 +12,7 @@ import static org.mockito.Mockito.when;
 import com.inna.urlshortener.feature.exceptions.InvalidCredentialsException;
 import com.inna.urlshortener.feature.exceptions.UserAlreadyExistsException;
 import com.inna.urlshortener.feature.exceptions.UserNotFoundException;
+import com.inna.urlshortener.feature.links.LinkMapper;
 import com.inna.urlshortener.feature.security.JwtProvider;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -21,6 +23,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -35,6 +38,10 @@ class UserServiceImplTest {
 
     @Mock
     private JwtProvider jwtProvider;
+
+    @Spy
+    @InjectMocks
+    private UserMapper userMapper = new UserMapper(passwordEncoder);
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -54,6 +61,9 @@ class UserServiceImplTest {
     @Test
     void registrationShouldCreateUserWhenUserIsNew() {
         when(userRepository.findByUsername(userRequestDto.getUsername())).thenReturn(Optional.empty());
+//        when(userMapper.toEntity(any(UserRequestDto.class))).thenReturn(user);
+//        when(userMapper.toDto(any(User.class), anyString())).thenReturn(
+//                new UserResponseDto(user.getId(), user.getUsername(), null));
         when(passwordEncoder.encode(userRequestDto.getPassword())).thenReturn(user.getPassword());
         when(userRepository.save(any(User.class))).thenReturn(user);
 

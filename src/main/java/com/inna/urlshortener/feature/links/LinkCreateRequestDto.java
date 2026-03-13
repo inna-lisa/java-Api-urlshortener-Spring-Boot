@@ -15,7 +15,7 @@ import org.hibernate.validator.constraints.URL;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LinkRequestDto {
+public class LinkCreateRequestDto {
     @NotBlank(message = "URL must not be empty")
     @URL(message = "URL must start with http:// or https://")
     @Schema(

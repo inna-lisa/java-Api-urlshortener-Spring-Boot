@@ -7,12 +7,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Optional;
+
+import com.inna.urlshortener.TestcontainersConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,6 +29,8 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 @AutoConfigureMockMvc
 @Testcontainers
 @Transactional
+@Import(TestcontainersConfiguration.class)
+@ActiveProfiles("test")
 class UserRestControllerIntegrationTest {
 
     @Autowired
@@ -36,18 +42,18 @@ class UserRestControllerIntegrationTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Container
-    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:15")
-            .withDatabaseName("testDb")
-            .withUsername("testUser")
-            .withPassword("testPass");
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-    }
+//    @Container
+//    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:15")
+//            .withDatabaseName("testDb")
+//            .withUsername("testUser")
+//            .withPassword("testPass");
+//
+//    @DynamicPropertySource
+//    static void configureProperties(DynamicPropertyRegistry registry) {
+//        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+//        registry.add("spring.datasource.username", postgres::getUsername);
+//        registry.add("spring.datasource.password", postgres::getPassword);
+//    }
 
     @Test
     void registrationShouldCreateUserInDataBase() throws Exception {

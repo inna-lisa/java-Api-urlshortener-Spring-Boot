@@ -19,6 +19,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final UserMapper userMapper;
 
     @Override
     public UserResponseDto registration(UserRequestDto userRequestDto) {
@@ -31,9 +32,10 @@ public class UserServiceImpl implements UserService {
         User user = new User();
         user.setUsername(userRequestDto.getUsername());
         user.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
+
         userRepository.save(user);
 
-        return new UserResponseDto(user.getId(), user.getUsername(), null);
+        return userMapper.toDto(user, null);
     }
 
     @Override
@@ -48,7 +50,7 @@ public class UserServiceImpl implements UserService {
 
         String token = jwtProvider.generateToken(user.getId(), user.getUsername());
 
-        return new UserResponseDto(user.getId(), user.getUsername(), token);
+        return userMapper.toDto(user, token);
     }
 
     /**

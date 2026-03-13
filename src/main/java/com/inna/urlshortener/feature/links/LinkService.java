@@ -16,7 +16,7 @@ public interface LinkService {
      * @param username authorized user.
      * @return response DTO.
      */
-    LinkResponseDto create(LinkRequestDto requestDto, String username);
+    LinkResponseDto create(LinkCreateRequestDto requestDto, String username);
 
     /**
      * Get original URL by short link.

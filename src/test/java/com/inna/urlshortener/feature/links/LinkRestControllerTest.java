@@ -49,13 +49,13 @@ class LinkRestControllerTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private LinkResponseDto linkResponseDto;
-    private LinkRequestDto linkRequestDto;
+    private LinkCreateRequestDto linkCreateRequestDto;
     private final String username = "testUser";
 
     @BeforeEach
     void setUp() {
-        linkRequestDto = new LinkRequestDto();
-        linkRequestDto.setUrl("https://testurl.com");
+        linkCreateRequestDto = new LinkCreateRequestDto();
+        linkCreateRequestDto.setUrl("https://testurl.com");
 
         linkResponseDto = new LinkResponseDto();
         linkResponseDto.setShortUrl("shortUrl");
@@ -69,20 +69,20 @@ class LinkRestControllerTest {
     @Test
     void createShouldReturnCreatedLink() throws Exception {
         when(principal.getName()).thenReturn(linkResponseDto.getUsername());
-        when(linkService.create(any(LinkRequestDto.class), anyString())).thenReturn(linkResponseDto);
+        when(linkService.create(any(LinkCreateRequestDto.class), anyString())).thenReturn(linkResponseDto);
 
         mockMvc.perform(post("/api/v1/links")
                         .principal(principal)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(linkRequestDto)))
+                        .content(objectMapper.writeValueAsString(linkCreateRequestDto)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.shortUrl").value(linkResponseDto.getShortUrl()))
                 .andExpect(jsonPath("$.url").value(linkResponseDto.getUrl()))
                 .andExpect(jsonPath("$.openCount").value(linkResponseDto.getOpenCount()))
                 .andExpect(jsonPath("$.username").value(linkResponseDto.getUsername()));
 
-        verify(linkService).create(any(LinkRequestDto.class), anyString());
+        verify(linkService).create(any(LinkCreateRequestDto.class), anyString());
     }
 
     @Test

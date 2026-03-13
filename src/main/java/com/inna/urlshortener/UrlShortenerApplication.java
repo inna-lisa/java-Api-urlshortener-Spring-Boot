@@ -1,5 +1,6 @@
 package com.inna.urlshortener;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -16,6 +17,15 @@ public class UrlShortenerApplication {
      * @param args command-line arguments
      */
     public static void main(String[] args) {
+
+        Dotenv dotenv = Dotenv.configure()
+                .ignoreIfMissing()
+                .load();
+
+        dotenv.entries().forEach(entry ->
+                System.setProperty(entry.getKey(), entry.getValue())
+        );
+
         SpringApplication.run(UrlShortenerApplication.class, args);
     }
 

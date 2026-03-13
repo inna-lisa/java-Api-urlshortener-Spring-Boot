@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,6 +34,9 @@ class LinkServiceImplTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Spy
+    private LinkMapper linkMapper = new LinkMapper();
 
     @InjectMocks
     private LinkServiceImpl linkService;
@@ -60,11 +64,11 @@ class LinkServiceImplTest {
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
         when(linkRepository.save(any(Link.class))).thenReturn(link);
 
-        LinkRequestDto linkRequestDto = new LinkRequestDto(link.getUrl());
-        LinkResponseDto linkResponseDto = linkService.create(linkRequestDto, user.getUsername());
+        LinkCreateRequestDto linkCreateRequestDto = new LinkCreateRequestDto(link.getUrl());
+        LinkResponseDto linkResponseDto = linkService.create(linkCreateRequestDto, user.getUsername());
 
         assertNotNull(linkResponseDto);
-        assertEquals(linkRequestDto.getUrl(), linkResponseDto.getUrl());
+        assertEquals(linkCreateRequestDto.getUrl(), linkResponseDto.getUrl());
 
         verify(linkRepository).save(any(Link.class));
     }
@@ -74,9 +78,9 @@ class LinkServiceImplTest {
 
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
-        LinkRequestDto linkRequestDto = new LinkRequestDto(link.getUrl());
+        LinkCreateRequestDto linkCreateRequestDto = new LinkCreateRequestDto(link.getUrl());
         assertThrows(UserNotFoundException.class,
-                () -> linkService.create(linkRequestDto, "unknown"));
+                () -> linkService.create(linkCreateRequestDto, "unknown"));
     }
 
     @Test
@@ -129,7 +133,7 @@ class LinkServiceImplTest {
 
         String shortLink = link.getShortLink();
         String username = user.getUsername();
-        assertThrows(IllegalArgumentException.class, () -> linkService.delete(shortLink, username));
+        assertThrows(LinkNotFoundException.class, () -> linkService.delete(shortLink, username));
     }
 
     @Test

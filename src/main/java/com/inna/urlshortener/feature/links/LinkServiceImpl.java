@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 /**
  * Implementation of {@link LinkService}.
  * Provides business logic for:
@@ -27,10 +26,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class LinkServiceImpl implements LinkService {
 
     private static final int SHORT_URL_LENGTH = 8;
-    private static final int EXPIRATION_PERIOD = 30;
     private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private final LinkRepository linkRepository;
     private final UserRepository userRepository;
+    private final LinkMapper linkMapper;
     private final Random random = new Random();
 
     /**
@@ -42,18 +41,12 @@ public class LinkServiceImpl implements LinkService {
      * @throws UserNotFoundException if user not found
      */
     @Override
-    public LinkResponseDto create(LinkRequestDto requestDto, String username) {
+    public LinkResponseDto create(LinkCreateRequestDto requestDto, String username) {
 
-        Link link = new Link();
-        link.setShortLink(generationUniqueShortUrl());
-        link.setUrl(requestDto.getUrl());
-        link.setCreatedAt(LocalDateTime.now());
-        link.setExpiresAt(LocalDateTime.now().plusDays(EXPIRATION_PERIOD));
-        link.setOpenCount(0);
-        link.setUser(userRepository.findByUsername(username)
-                .orElseThrow(UserNotFoundException::new));
+        Link link = linkMapper.toEntity(generationUniqueShortUrl(), requestDto,
+                userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new));
 
-        return toDto(linkRepository.save(link));
+        return linkMapper.toDto(linkRepository.save(link));
     }
 
     /**
@@ -104,7 +97,7 @@ public class LinkServiceImpl implements LinkService {
             link.setExpiresAt(requestDto.getExpiresAt());
         }
 
-        return toDto(link);
+        return linkMapper.toDto(link);
     }
 
 
@@ -119,7 +112,7 @@ public class LinkServiceImpl implements LinkService {
     @Transactional
     public void delete(String shortLink, String username) {
         Link link = linkRepository.findByShortLink(shortLink)
-                .orElseThrow(() -> new IllegalArgumentException("Short URL doesn't exist"));
+                .orElseThrow(() -> new LinkNotFoundException("Short URL doesn't exist"));
         if (!link.getUser().getUsername().equals(username)) {
             throw new SecurityException("You are not the owner of this link");
         }
@@ -139,7 +132,7 @@ public class LinkServiceImpl implements LinkService {
         List<Link> linksByUser = linkRepository.findByUser(user);
 
         return linksByUser.stream()
-                .map(this::toDto)
+                .map(linkMapper::toDto)
                 .toList();
     }
 
@@ -156,7 +149,7 @@ public class LinkServiceImpl implements LinkService {
         List<Link> linksByUser = linkRepository.findByUserAndExpiresAtAfter(user, LocalDateTime.now());
 
         return linksByUser.stream()
-                .map(this::toDto)
+                .map(linkMapper::toDto)
                 .toList();
     }
 
@@ -177,22 +170,5 @@ public class LinkServiceImpl implements LinkService {
         } while (linkRepository.existsById(shortUrl));
 
         return shortUrl;
-    }
-
-    /**
-     * Converts Link entity to response DTO.
-     *
-     * @param link link entity
-     * @return response DTO with link information
-     */
-    private LinkResponseDto toDto(Link link) {
-
-        return new LinkResponseDto(
-                link.getShortLink(),
-                link.getUrl(),
-                link.getCreatedAt(),
-                link.getExpiresAt(),
-                link.getOpenCount(),
-                link.getUser().getUsername());
     }
 }
